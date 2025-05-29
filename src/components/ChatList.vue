@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useChatStore } from '../stores/chat';
+import { useAuthStore } from '../stores/auth';
+import { useRouter } from 'vue-router';
 
 defineProps<{
   selectedChatId: number | null;
@@ -11,6 +13,8 @@ const emit = defineEmits<{
 }>();
 
 const chatStore = useChatStore();
+const authStore = useAuthStore();
+const router = useRouter();
 
 // Mock data for conversations with last messages from the store
 const conversations = computed(() => [
@@ -39,12 +43,23 @@ const conversations = computed(() => [
     avatar: '👤'
   }
 ]);
+
+async function handleLogout() {
+  await authStore.logout();
+  router.push('/login');
+}
 </script>
 
 <template>
   <div class="chat-list">
     <div class="chat-list-header">
-      <h2>Conversas</h2>
+      <div class="header-top">
+        <h2>Conversas</h2>
+        <button @click="handleLogout" class="logout-button">
+          <i class="fas fa-sign-out-alt"></i>
+          Sair
+        </button>
+      </div>
       <div class="search-box">
         <i class="fas fa-search"></i>
         <input type="text" placeholder="Pesquisar ou começar nova conversa" />
@@ -87,10 +102,17 @@ const conversations = computed(() => [
     padding: 16px;
     background: #f0f2f5;
 
-    h2 {
-      margin: 0 0 16px 0;
-      font-size: 1.2rem;
-      color: #41525d;
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        color: #41525d;
+      }
     }
   }
 }
@@ -214,5 +236,27 @@ const conversations = computed(() => [
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #c82333;
+  }
+
+  i {
+    font-size: 1rem;
+  }
 }
 </style>

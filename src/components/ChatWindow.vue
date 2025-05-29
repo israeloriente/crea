@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useChatStore } from '../stores/chat';
+import { ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { useChatStore } from "../stores/chat";
 
 const props = defineProps<{
   chatId: number;
@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const chatStore = useChatStore();
 const { getCurrentMessages } = storeToRefs(chatStore);
-const newMessage = ref('');
+const newMessage = ref("");
 
 watch(
   () => props.chatId,
@@ -24,7 +24,7 @@ watch(
 const sendMessage = () => {
   if (newMessage.value.trim()) {
     chatStore.sendMessage(newMessage.value);
-    newMessage.value = '';
+    newMessage.value = "";
   }
 };
 </script>
@@ -62,7 +62,7 @@ const sendMessage = () => {
           placeholder="Digite uma mensagem"
           @keyup.enter="sendMessage"
         />
-        <i class="fas fa-paperclip"></i>
+        <i class="fas fa-robot"></i>
       </div>
       <button @click="sendMessage" class="send-button">
         <i class="fas fa-paper-plane"></i>
@@ -197,7 +197,11 @@ const sendMessage = () => {
         outline: none;
         padding: 0 8px;
         font-size: 0.95rem;
+        background: transparent;
         color: #111b21;
+        &::placeholder {
+          color: #54656f;
+        }
       }
     }
   }
