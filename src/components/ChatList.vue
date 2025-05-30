@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useChatStore } from '../stores/chat';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
@@ -15,34 +15,47 @@ const emit = defineEmits<{
 const chatStore = useChatStore();
 const authStore = useAuthStore();
 const router = useRouter();
+const searchQuery = ref('');
 
-// Mock data for conversations with last messages from the store
-const conversations = computed(() => [
-  {
-    id: 1,
-    name: 'João Silva',
-    lastMessage: chatStore.chats[0]?.messages[chatStore.chats[0]?.messages.length - 1]?.text || '',
-    timestamp: chatStore.chats[0]?.messages[chatStore.chats[0]?.messages.length - 1]?.timestamp || '',
-    unread: 2,
-    avatar: '👤'
-  },
-  {
-    id: 2,
-    name: 'Maria Santos',
-    lastMessage: chatStore.chats[1]?.messages[chatStore.chats[1]?.messages.length - 1]?.text || '',
-    timestamp: chatStore.chats[1]?.messages[chatStore.chats[1]?.messages.length - 1]?.timestamp || '',
-    unread: 0,
-    avatar: '👤'
-  },
-  {
-    id: 3,
-    name: 'Pedro Costa',
-    lastMessage: chatStore.chats[2]?.messages[chatStore.chats[2]?.messages.length - 1]?.text || '',
-    timestamp: chatStore.chats[2]?.messages[chatStore.chats[2]?.messages.length - 1]?.timestamp || '',
-    unread: 1,
-    avatar: '👤'
+// Mock data for conversations with last messages from the store and search filter
+const conversations = computed(() => {
+  const allConversations = [
+    {
+      id: 1,
+      name: 'João Silva',
+      lastMessage: chatStore.chats[0]?.messages[chatStore.chats[0]?.messages.length - 1]?.text || '',
+      timestamp: chatStore.chats[0]?.messages[chatStore.chats[0]?.messages.length - 1]?.timestamp || '',
+      unread: 2,
+      avatar: '👤'
+    },
+    {
+      id: 2,
+      name: 'Maria Santos',
+      lastMessage: chatStore.chats[1]?.messages[chatStore.chats[1]?.messages.length - 1]?.text || '',
+      timestamp: chatStore.chats[1]?.messages[chatStore.chats[1]?.messages.length - 1]?.timestamp || '',
+      unread: 0,
+      avatar: '👤'
+    },
+    {
+      id: 3,
+      name: 'Pedro Costa',
+      lastMessage: chatStore.chats[2]?.messages[chatStore.chats[2]?.messages.length - 1]?.text || '',
+      timestamp: chatStore.chats[2]?.messages[chatStore.chats[2]?.messages.length - 1]?.timestamp || '',
+      unread: 1,
+      avatar: '👤'
+    }
+  ];
+
+  if (!searchQuery.value.trim()) {
+    return allConversations;
   }
-]);
+
+  const query = searchQuery.value.toLowerCase();
+  return allConversations.filter(conv =>
+    conv.name.toLowerCase().includes(query) ||
+    conv.lastMessage.toLowerCase().includes(query)
+  );
+});
 
 async function handleLogout() {
   await authStore.logout();
@@ -62,7 +75,11 @@ async function handleLogout() {
       </div>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" placeholder="Pesquisar ou começar nova conversa" />
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Pesquisar ou começar nova conversa"
+        />
       </div>
     </div>
     <div class="conversations">

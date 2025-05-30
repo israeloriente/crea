@@ -103,19 +103,19 @@ const sendMessage = () => {
       justify-content: center;
       font-size: 1.2rem;
     }
-  }
 
-  .chat-info {
-    h3 {
-      margin: 0;
-      font-size: 1rem;
-      color: #111b21;
+    .chat-info {
+      h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: #111b21;
+      }
+
+      .status {
+        font-size: 0.8rem;
+        color: #667781;
+      }
     }
-  }
-
-  .status {
-    font-size: 0.8rem;
-    color: #667781;
   }
 
   .messages {
@@ -123,50 +123,62 @@ const sendMessage = () => {
     overflow-y: auto;
     padding: 20px;
     height: calc(100vh - 120px);
-  }
+    display: flex;
+    flex-direction: column;
 
-  .message {
-    padding: 8px 12px;
-    margin: 4px 8px;
-    max-width: 60%;
-    border-radius: 8px;
-    color: #111b21;
-
-    &.received {
-      background: white;
-      align-self: flex-start;
-      color: #111b21;
-    }
-
-    &.sent {
-      background: #d9fdd3;
-      align-self: flex-end;
-      color: #111b21;
-    }
-
-    &-content {
-      max-width: 65%;
+    .message {
       padding: 8px 12px;
+      margin: 4px 8px;
+      max-width: 60%;
       border-radius: 8px;
-      position: relative;
-      font-size: 0.9rem;
+      color: #111b21;
+      display: flex;
+
+      &.received {
+        background: white;
+        margin-right: auto;
+        color: #111b21;
+      }
+
+      &.sent {
+        background: #d9fdd3;
+        margin-left: auto;
+        color: #111b21;
+      }
+
+      &-content {
+        max-width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        position: relative;
+        font-size: 0.9rem;
+      }
+
+      &-time {
+        font-size: 0.7rem;
+        color: #667781;
+        position: absolute;
+        right: 8px;
+        bottom: -14px;
+      }
     }
 
-    &-time {
-      font-size: 0.7rem;
-      color: #667781;
-      position: absolute;
-      right: 8px;
-      bottom: -14px;
+    .me {
+      float: right;
+      color: #111b21;
+      text-align: right;
+      margin-left: auto;
+
+      .message-content {
+        background: #d9fdd3;
+      }
     }
-  }
 
-  .me .message-content {
-    background: #d9fdd3;
-  }
-
-  .them .message-content {
-    background: white;
+    .them {
+      .message-content {
+        background: white;
+      }
+    }
   }
 
   .message-input {
@@ -199,23 +211,24 @@ const sendMessage = () => {
         font-size: 0.95rem;
         background: transparent;
         color: #111b21;
+
         &::placeholder {
           color: #54656f;
         }
       }
     }
-  }
 
-  .send-button {
-    background: transparent;
-    border: none;
-    color: #54656f;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 8px;
+    .send-button {
+      background: transparent;
+      border: none;
+      color: #54656f;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 8px;
 
-    &:hover {
-      color: #00a884;
+      &:hover {
+        color: #00a884;
+      }
     }
   }
 }
