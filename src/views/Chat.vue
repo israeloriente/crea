@@ -9,11 +9,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { storeToRefs } from 'pinia';
 import { useChatStore } from '../stores/chat';
 import ChatList from "../components/ChatList.vue";
 import ChatWindow from "../components/ChatWindow.vue";
+import { supabase } from "../lib/supabase";
 
 const chatStore = useChatStore();
 const { currentChatId } = storeToRefs(chatStore);
@@ -27,6 +28,37 @@ const handleChatSelect = (chatId: number) => {
 // Sync the selected chat with the store
 watch(currentChatId, (newChatId) => {
   selectedChat.value = newChatId;
+});
+
+onMounted(async () => {
+  console.log('Configurando canal Supabase...');
+
+  // Carregar chats iniciais
+  await chatStore.fetchChats();
+
+  const channel = supabase
+    .channel('public:human_chats')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'human_chats',
+      },
+      (payload) => {
+        console.log('Payload recebido:', payload);
+        console.log('Mudança detectada em human_chats:', payload);
+        chatStore.fetchChats();
+      }
+    )
+    .subscribe((status) => {
+      console.log('Status da inscrição:', status);
+    });
+
+  onUnmounted(() => {
+    console.log('Removendo canal...');
+    supabase.removeChannel(channel);
+  });
 });
 </script>
 

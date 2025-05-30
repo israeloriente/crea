@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useChatStore } from "../stores/chat";
+import { supabase } from "../lib/supabase";
 
 const props = defineProps<{
   chatId: number;
 }>();
 
 const chatStore = useChatStore();
-const { getCurrentMessages } = storeToRefs(chatStore);
+const { getCurrentChat, getCurrentMessages } = storeToRefs(chatStore);
 const newMessage = ref("");
 
 watch(
@@ -27,6 +28,40 @@ const sendMessage = () => {
     newMessage.value = "";
   }
 };
+
+const handleBotToggle = async () => {
+  console.log(props.chatId);
+
+  if (props.chatId) {
+    await chatStore.toggleBotStatus(props.chatId);
+  }
+};
+
+onMounted(() => {
+  if (!getCurrentChat.value?.phone) return;
+
+  const channel = supabase
+    .channel("n8n_chat_histories")
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "n8n_chat_histories",
+        filter: `session_id=eq.${getCurrentChat.value.phone}`,
+      },
+      (payload) => {
+        if (payload.eventType === "INSERT") {
+          chatStore.fetchMessages(props.chatId);
+        }
+      }
+    )
+    .subscribe();
+
+  onUnmounted(() => {
+    supabase.removeChannel(channel);
+  });
+});
 </script>
 
 <template>
@@ -34,7 +69,7 @@ const sendMessage = () => {
     <div class="chat-header">
       <div class="avatar">👤</div>
       <div class="chat-info">
-        <h3>Nome do Contato</h3>
+        <h3>{{ getCurrentChat?.name || "Sem nome" }}</h3>
         <span class="status">online</span>
       </div>
     </div>
@@ -44,7 +79,10 @@ const sendMessage = () => {
         v-for="message in getCurrentMessages"
         :key="message.id"
         class="message"
-        :class="message.sender"
+        :class="{
+          me: message.sender === 'me',
+          them: message.sender === 'them',
+        }"
       >
         <div class="message-content">
           {{ message.text }}
@@ -62,7 +100,11 @@ const sendMessage = () => {
           placeholder="Digite uma mensagem"
           @keyup.enter="sendMessage"
         />
-        <i class="fas fa-robot" title="Retomar conversa para o Robô"></i>
+        <i
+          class="fas fa-robot"
+          @click="handleBotToggle"
+          title="Retomar conversa para o Robô"
+        ></i>
       </div>
       <button @click="sendMessage" class="send-button">
         <i class="fas fa-paper-plane"></i>

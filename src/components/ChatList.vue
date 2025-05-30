@@ -1,68 +1,3 @@
-<script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useChatStore } from '../stores/chat';
-import { useAuthStore } from '../stores/auth';
-import { useRouter } from 'vue-router';
-
-defineProps<{
-  selectedChatId: number | null;
-}>();
-
-const emit = defineEmits<{
-  (e: 'select-chat', chatId: number): void;
-}>();
-
-const chatStore = useChatStore();
-const authStore = useAuthStore();
-const router = useRouter();
-const searchQuery = ref('');
-
-// Mock data for conversations with last messages from the store and search filter
-const conversations = computed(() => {
-  const allConversations = [
-    {
-      id: 1,
-      name: 'João Silva',
-      lastMessage: chatStore.chats[0]?.messages[chatStore.chats[0]?.messages.length - 1]?.text || '',
-      timestamp: chatStore.chats[0]?.messages[chatStore.chats[0]?.messages.length - 1]?.timestamp || '',
-      unread: 2,
-      avatar: '👤'
-    },
-    {
-      id: 2,
-      name: 'Maria Santos',
-      lastMessage: chatStore.chats[1]?.messages[chatStore.chats[1]?.messages.length - 1]?.text || '',
-      timestamp: chatStore.chats[1]?.messages[chatStore.chats[1]?.messages.length - 1]?.timestamp || '',
-      unread: 0,
-      avatar: '👤'
-    },
-    {
-      id: 3,
-      name: 'Pedro Costa',
-      lastMessage: chatStore.chats[2]?.messages[chatStore.chats[2]?.messages.length - 1]?.text || '',
-      timestamp: chatStore.chats[2]?.messages[chatStore.chats[2]?.messages.length - 1]?.timestamp || '',
-      unread: 1,
-      avatar: '👤'
-    }
-  ];
-
-  if (!searchQuery.value.trim()) {
-    return allConversations;
-  }
-
-  const query = searchQuery.value.toLowerCase();
-  return allConversations.filter(conv =>
-    conv.name.toLowerCase().includes(query) ||
-    conv.lastMessage.toLowerCase().includes(query)
-  );
-});
-
-async function handleLogout() {
-  await authStore.logout();
-  router.push('/login');
-}
-</script>
-
 <template>
   <div class="chat-list">
     <div class="chat-list-header">
@@ -87,24 +22,69 @@ async function handleLogout() {
         v-for="chat in conversations"
         :key="chat.id"
         class="chat-card"
-        :class="{ 'selected': selectedChatId === chat.id }"
+        :class="{ selected: selectedChatId === chat.id }"
         @click="$emit('select-chat', chat.id)"
       >
-        <div class="avatar">{{ chat.avatar }}</div>
+        <div class="avatar">{{ chat.avatar || '👤' }}</div>
         <div class="chat-info">
           <div class="chat-header">
             <h3>{{ chat.name }}</h3>
-            <span class="timestamp">{{ chat.timestamp }}</span>
+            <span class="timestamp">{{ formatTimestamp(chat.timestamp || chat.created_at) }}</span>
           </div>
           <div class="last-message">
-            <p>{{ chat.lastMessage }}</p>
-            <span v-if="chat.unread" class="unread-badge">new</span>
+            <p>{{ chat.lastMessage || 'Nenhuma mensagem' }}</p>
+            <span v-if="chat.unread" class="unread-badge">{{ chat.unread }}</span>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { useChatStore } from "../stores/chat";
+import { useAuthStore } from "../stores/auth";
+import { useRouter } from "vue-router";
+import moment from 'moment';
+
+defineProps<{
+  selectedChatId: number | null;
+}>();
+
+defineEmits<{
+  (e: "select-chat", chatId: number): void;
+}>();
+
+const chatStore = useChatStore();
+const authStore = useAuthStore();
+const router = useRouter();
+const searchQuery = ref("");
+
+// Mock data for conversations with last messages from the store and search filter
+const conversations = computed(() => {
+  const chats = chatStore.chats;
+
+  if (!searchQuery.value.trim()) {
+    return chats;
+  }
+
+  const query = searchQuery.value.toLowerCase();
+  return chats.filter(chat =>
+    chat.name.toLowerCase().includes(query)
+  );
+});
+
+function formatTimestamp(timestamp: string | Date | undefined): string {
+  if (!timestamp) return '';
+  return moment(timestamp).format('HH:mm - DD/MM');
+}
+
+async function handleLogout() {
+  await authStore.logout();
+  router.push("/login");
+}
+</script>
 
 <style scoped lang="scss">
 .chat-list {

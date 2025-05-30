@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia'
+import { supabase } from '../lib/supabase'
+import { useAuthStore } from './auth'
 
 interface Message {
   id: number
@@ -9,91 +11,158 @@ interface Message {
 
 interface Chat {
   id: number
+  name: string
+  phone: string
+  avatar?: string
+  timestamp?: string
+  created_at?: string
+  unread?: number
+  lastMessage?: string
   messages: Message[]
+  bot_is_disabled?: boolean
 }
 
 interface ChatState {
   chats: Chat[]
   currentChatId: number | null
+  currentMessages: Message[]
 }
 
 export const useChatStore = defineStore('chat', {
   state: (): ChatState => ({
-    chats: [
-      {
-        id: 1,
-        messages: [
-          {
-            id: 1,
-            text: 'Olá, tudo bem?',
-            timestamp: '10:30',
-            sender: 'them'
-          },
-          {
-            id: 2,
-            text: 'Oi! Tudo bem, e você?',
-            timestamp: '10:31',
-            sender: 'me'
-          },
-          {
-            id: 3,
-            text: 'Estou bem também! Precisava de uma ajuda com um projeto.',
-            timestamp: '10:32',
-            sender: 'them'
-          }
-        ]
-      },
-      {
-        id: 2,
-        messages: [
-          {
-            id: 1,
-            text: 'Podemos marcar uma reunião?',
-            timestamp: '09:45',
-            sender: 'them'
-          }
-        ]
-      },
-      {
-        id: 3,
-        messages: [
-          {
-            id: 1,
-            text: 'Obrigado pela ajuda!',
-            timestamp: '15:20',
-            sender: 'them'
-          }
-        ]
-      }
-    ],
-    currentChatId: null
+    chats: [],
+    currentChatId: null,
+    currentMessages: []
   }),
 
   actions: {
-    sendMessage(text: string) {
-      if (!this.currentChatId) return
+    async fetchChats() {
+      try {
+        console.log('Buscando chats...');
+        const authStore = useAuthStore();
 
-      const currentChat = this.chats.find(chat => chat.id === this.currentChatId)
-      if (!currentChat) return
+        const { data, error } = await supabase
+          .from('human_chats')
+          .select('*')
+          .eq('user', authStore.user?.id)
+          .eq('bot_is_disabled', true)
+          .order('created_at', { ascending: false });
 
-      const message: Message = {
-        id: currentChat.messages.length + 1,
-        text,
-        timestamp: new Date().toLocaleTimeString().slice(0, 5),
-        sender: 'me'
+        if (error) {
+          console.error('Erro ao buscar chats:', error);
+          return;
+        }
+
+        console.log('Chats recebidos:', data);
+        this.chats = data || [];
+      } catch (error) {
+        console.error('Erro ao buscar chats:', error);
       }
-      currentChat.messages.push(message)
+    },
+
+    async fetchMessages(chatId: number) {
+      try {
+        const currentChat = this.chats.find(chat => chat.id === chatId);
+        if (!currentChat) return;
+
+        const { data, error } = await supabase
+          .from('n8n_chat_histories')
+          .select('*')
+          .eq('session_id', currentChat.phone)
+          .order('created_at', { ascending: true });
+
+        if (error) {
+          console.error('Erro ao buscar mensagens:', error);
+          return;
+        }
+
+        this.currentMessages = data.map(msg => {
+          const message = typeof msg.message === 'string' ? JSON.parse(msg.message) : msg.message;
+          return {
+            id: msg.id,
+            text: message.content,
+            timestamp: new Date(msg.created_at).toLocaleTimeString().slice(0, 5),
+            sender: message.type === 'human' ? 'them' : 'me'
+          };
+        });
+      } catch (error) {
+        console.error('Erro ao buscar mensagens:', error);
+      }
+    },
+
+    async sendMessage(text: string) {
+      if (!this.currentChatId) return;
+
+      const currentChat = this.chats.find(chat => chat.id === this.currentChatId);
+      if (!currentChat) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('n8n_chat_histories')
+          .insert({
+            session_id: currentChat.phone,
+            message: JSON.stringify({
+              type: 'ai',
+              content: text,
+              additional_kwargs: {},
+              response_metadata: {}
+            })
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Atualizar mensagens localmente
+        this.currentMessages.push({
+          id: data.id,
+          text,
+          timestamp: new Date().toLocaleTimeString().slice(0, 5),
+          sender: 'me'
+        });
+      } catch (error) {
+        console.error('Erro ao enviar mensagem:', error);
+      }
+    },
+
+    async toggleBotStatus(chatId: number) {
+      try {
+        const chat = this.chats.find(c => c.id === chatId);
+        if (!chat) return;
+
+        const { error } = await supabase
+          .from('human_chats')
+          .update({ bot_is_disabled: false })
+          .eq('id', chatId);
+
+        if (error) {
+          console.error('Erro ao atualizar status do bot:', error);
+          return;
+        }
+
+        // Update local state
+        const chatIndex = this.chats.findIndex(c => c.id === chatId);
+        if (chatIndex !== -1) {
+          this.chats[chatIndex].bot_is_disabled = false;
+        }
+      } catch (error) {
+        console.error('Erro ao atualizar status do bot:', error);
+      }
     },
 
     setCurrentChat(chatId: number) {
-      this.currentChatId = chatId
+      this.currentChatId = chatId;
+      this.fetchMessages(chatId);
     }
   },
 
   getters: {
+    getCurrentChat(): Chat | undefined {
+      return this.chats.find(chat => chat.id === this.currentChatId);
+    },
+
     getCurrentMessages(): Message[] {
-      const currentChat = this.chats.find(chat => chat.id === this.currentChatId)
-      return currentChat?.messages || []
+      return this.currentMessages;
     }
   }
 })
