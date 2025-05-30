@@ -98,7 +98,7 @@ async function handleLogout() {
           </div>
           <div class="last-message">
             <p>{{ chat.lastMessage }}</p>
-            <span v-if="chat.unread" class="unread-badge">{{ chat.unread }}</span>
+            <span v-if="chat.unread" class="unread-badge">new</span>
           </div>
         </div>
       </div>
@@ -228,6 +228,7 @@ async function handleLogout() {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  float: left;
   gap: 8px;
 
   p {

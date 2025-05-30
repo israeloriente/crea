@@ -62,7 +62,7 @@ const sendMessage = () => {
           placeholder="Digite uma mensagem"
           @keyup.enter="sendMessage"
         />
-        <i class="fas fa-robot"></i>
+        <i class="fas fa-robot" title="Retomar conversa para o Robô"></i>
       </div>
       <button @click="sendMessage" class="send-button">
         <i class="fas fa-paper-plane"></i>
@@ -152,6 +152,8 @@ const sendMessage = () => {
         border-radius: 8px;
         position: relative;
         font-size: 0.9rem;
+        float: left;
+        text-align: left;
       }
 
       &-time {
@@ -171,6 +173,8 @@ const sendMessage = () => {
 
       .message-content {
         background: #d9fdd3;
+        float: right;
+        text-align: right;
       }
     }
 
