@@ -148,13 +148,18 @@ export const useChatStore = defineStore('chat', {
         const chat = this.chats.find(c => c.id === chatId);
         if (!chat) return;
 
-        const { error } = await supabase
-          .from('human_chats')
-          .update({ bot_is_disabled: false, status: "closed" })
-          .eq('id', chatId);
+        const response = await fetch('https://crea.webhook.israeloriente.me/webhook/finish-conversation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chat_id: chatId
+          })
+        });
 
-        if (error) {
-          console.error('Erro ao deletar chat:', error);
+        if (!response.ok) {
+          console.error('Erro ao finalizar conversa:', await response.text());
           return;
         }
 
@@ -173,7 +178,7 @@ export const useChatStore = defineStore('chat', {
           }
         }
       } catch (error) {
-        console.error('Erro ao deletar chat:', error);
+        console.error('Erro ao finalizar conversa:', error);
       }
     },
 
