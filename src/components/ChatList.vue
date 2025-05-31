@@ -32,7 +32,7 @@
           </div>
           <div class="last-message">
             <p>{{ chat.lastMessage || 'Nenhuma mensagem' }}</p>
-            <span v-if="chat.unread" class="unread-badge">{{ chat.unread }}</span>
+            <span v-if="chat.isNew" class="unread-badge">new</span>
           </div>
         </div>
       </div>

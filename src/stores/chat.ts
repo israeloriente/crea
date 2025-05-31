@@ -21,6 +21,7 @@ interface Chat {
   lastMessage?: string
   messages: Message[]
   bot_is_disabled?: boolean
+  isNew?: boolean
 }
 
 interface ChatState {
@@ -42,7 +43,8 @@ export const useChatStore = defineStore('chat', {
         console.log('Buscando chats...');
         const authStore = useAuthStore();
 
-        const { data, error } = await supabase
+        // Primeiro buscar os chats
+        const { data: chatsData, error: chatsError } = await supabase
           .from('human_chats')
           .select('*')
           .eq('user', authStore.user?.id)
@@ -50,13 +52,37 @@ export const useChatStore = defineStore('chat', {
           .eq('status', 'open')
           .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Erro ao buscar chats:', error);
+        if (chatsError) {
+          console.error('Erro ao buscar chats:', chatsError);
           return;
         }
 
-        console.log('Chats recebidos:', data);
-        this.chats = data || [];
+        // Para cada chat, buscar a última mensagem
+        const chatsWithMessages = await Promise.all((chatsData || []).map(async (chat) => {
+          const { data: messages } = await supabase
+            .from('human_chat_histories')
+            .select('*')
+            .eq('session_id', chat.phone)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          let lastMessage = 'Nenhuma mensagem';
+          if (messages) {
+            const messageContent = typeof messages.message === 'string'
+              ? JSON.parse(messages.message)
+              : messages.message;
+            lastMessage = messageContent.content;
+          }
+
+          return {
+            ...chat,
+            lastMessage,
+            isNew: !this.chats.some(c => c.id === chat.id)
+          };
+        }));
+
+        this.chats = chatsWithMessages;
       } catch (error) {
         console.error('Erro ao buscar chats:', error);
       }
@@ -192,6 +218,11 @@ export const useChatStore = defineStore('chat', {
 
     setCurrentChat(chatId: number) {
       this.currentChatId = chatId;
+      // Marca o chat como não novo quando selecionado
+      const chat = this.chats.find(c => c.id === chatId);
+      if (chat) {
+        chat.isNew = false;
+      }
       this.fetchMessages(chatId);
     }
   },

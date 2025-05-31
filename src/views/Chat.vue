@@ -49,8 +49,36 @@ onMounted(async () => {
     )
     .subscribe();
 
+  // Adiciona listener para novas mensagens
+  const messagesChannel = supabase
+    .channel('public:human_chat_histories')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'human_chat_histories',
+      },
+      (payload) => {
+        const message = typeof payload.new.message === 'string'
+          ? JSON.parse(payload.new.message)
+          : payload.new.message;
+
+        // Atualiza a última mensagem e marca como novo se necessário
+        const chat = chatStore.chats.find(c => c.phone === payload.new.session_id);
+        if (chat) {
+          chat.lastMessage = message.content;
+          if (chat.id !== selectedChat.value && message.type === 'human') {
+            chat.isNew = true;
+          }
+        }
+      }
+    )
+    .subscribe();
+
   onUnmounted(() => {
     supabase.removeChannel(channel);
+    supabase.removeChannel(messagesChannel);
   });
 });
 </script>
