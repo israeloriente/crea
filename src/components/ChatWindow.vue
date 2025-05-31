@@ -11,12 +11,30 @@ const props = defineProps<{
 const chatStore = useChatStore();
 const { getCurrentChat, getCurrentMessages } = storeToRefs(chatStore);
 const newMessage = ref("");
+const messagesContainer = ref<HTMLElement | null>(null);
+
+const scrollToBottom = () => {
+  setTimeout(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+    }
+  }, 100);
+};
+
+watch(
+  getCurrentMessages,
+  () => {
+    scrollToBottom();
+  },
+  { deep: true }
+);
 
 watch(
   () => props.chatId,
   (newChatId) => {
     if (newChatId) {
       chatStore.setCurrentChat(newChatId);
+      scrollToBottom();
     }
   },
   { immediate: true }
@@ -26,6 +44,7 @@ const sendMessage = () => {
   if (newMessage.value.trim()) {
     chatStore.sendMessage(newMessage.value);
     newMessage.value = "";
+    scrollToBottom();
   }
 };
 
@@ -72,7 +91,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="messages">
+    <div class="messages" ref="messagesContainer">
       <div
         v-for="message in getCurrentMessages"
         :key="message.id"
