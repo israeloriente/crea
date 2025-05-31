@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from './auth'
+import confetti from 'canvas-confetti';
 
 interface Message {
   id: number
@@ -162,6 +163,13 @@ export const useChatStore = defineStore('chat', {
           console.error('Erro ao finalizar conversa:', await response.text());
           return;
         }
+
+        // Trigger confetti effect on success
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
 
         // Remove from local state
         this.chats = this.chats.filter(c => c.id !== chatId);
