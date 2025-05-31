@@ -46,6 +46,7 @@ export const useChatStore = defineStore('chat', {
           .select('*')
           .eq('user', authStore.user?.id)
           .eq('bot_is_disabled', true)
+          .eq('status', 'open')
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -66,7 +67,7 @@ export const useChatStore = defineStore('chat', {
         if (!currentChat) return;
 
         const { data, error } = await supabase
-          .from('n8n_chat_histories')
+          .from('human_chat_histories')
           .select('*')
           .eq('session_id', currentChat.phone)
           .order('created_at', { ascending: true });
@@ -97,8 +98,25 @@ export const useChatStore = defineStore('chat', {
       if (!currentChat) return;
 
       try {
+        // Send message to webhook first
+        const webhookResponse = await fetch('https://crea.webhook.israeloriente.me/webhook/send-message-to-client', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            phone: currentChat.phone,
+            message: text
+          })
+        });
+
+        if (!webhookResponse.ok) {
+          throw new Error('Failed to send message through webhook');
+        }
+
+        // Then save to Supabase
         const { data, error } = await supabase
-          .from('n8n_chat_histories')
+          .from('human_chat_histories')
           .insert({
             session_id: currentChat.phone,
             message: JSON.stringify({
@@ -113,7 +131,7 @@ export const useChatStore = defineStore('chat', {
 
         if (error) throw error;
 
-        // Atualizar mensagens localmente
+        // Update messages locally
         this.currentMessages.push({
           id: data.id,
           text,
@@ -132,7 +150,7 @@ export const useChatStore = defineStore('chat', {
 
         const { error } = await supabase
           .from('human_chats')
-          .update({ bot_is_disabled: false })
+          .update({ bot_is_disabled: false, status: "closed" })
           .eq('id', chatId);
 
         if (error) {

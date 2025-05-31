@@ -30,8 +30,6 @@ const sendMessage = () => {
 };
 
 const handleBotToggle = async () => {
-  console.log(props.chatId);
-
   if (props.chatId) {
     await chatStore.toggleBotStatus(props.chatId);
   }
@@ -41,13 +39,13 @@ onMounted(() => {
   if (!getCurrentChat.value?.phone) return;
 
   const channel = supabase
-    .channel("n8n_chat_histories")
+    .channel("human_chat_histories")
     .on(
       "postgres_changes",
       {
         event: "*",
         schema: "public",
-        table: "n8n_chat_histories",
+        table: "human_chat_histories",
         filter: `session_id=eq.${getCurrentChat.value.phone}`,
       },
       (payload) => {
