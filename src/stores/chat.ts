@@ -154,17 +154,26 @@ export const useChatStore = defineStore('chat', {
           .eq('id', chatId);
 
         if (error) {
-          console.error('Erro ao atualizar status do bot:', error);
+          console.error('Erro ao deletar chat:', error);
           return;
         }
 
-        // Update local state
-        const chatIndex = this.chats.findIndex(c => c.id === chatId);
-        if (chatIndex !== -1) {
-          this.chats[chatIndex].bot_is_disabled = false;
+        // Remove from local state
+        this.chats = this.chats.filter(c => c.id !== chatId);
+
+        // If the deleted chat was the current chat
+        if (this.currentChatId === chatId) {
+          // If there are other chats available, select the first one
+          if (this.chats.length > 0) {
+            this.setCurrentChat(this.chats[0].id);
+          } else {
+            // If no chats remain, clear the current chat
+            this.currentChatId = null;
+            this.currentMessages = [];
+          }
         }
       } catch (error) {
-        console.error('Erro ao atualizar status do bot:', error);
+        console.error('Erro ao deletar chat:', error);
       }
     },
 
