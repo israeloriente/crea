@@ -69,7 +69,8 @@ onMounted(() => {
       },
       (payload) => {
         if (payload.eventType === "INSERT") {
-          chatStore.fetchMessages(props.chatId);
+          // Usa appendNew=true para preservar as mensagens existentes
+          chatStore.fetchMessages(props.chatId, true);
         }
       }
     )

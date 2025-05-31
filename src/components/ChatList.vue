@@ -13,8 +13,8 @@
         />
       </div>
     </div>
-    <div class="conversations">
-      <div v-if="conversations.length === 0" class="no-conversations">
+    <div class="conversations" ref="conversationsRef">
+      <div v-if="conversations.length === 0 && !isLoadingMore" class="no-conversations">
         Aguardando Novas Mensagens
       </div>
       <div
@@ -36,13 +36,18 @@
           </div>
         </div>
       </div>
+      <div v-if="isLoadingMore" class="loading-more">
+        <i class="fas fa-spinner fa-spin"></i>
+        Carregando mais chats...
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useChatStore } from "../stores/chat";
+import { storeToRefs } from 'pinia';
 import moment from 'moment';
 
 defineProps<{
@@ -54,7 +59,9 @@ defineEmits<{
 }>();
 
 const chatStore = useChatStore();
+const { isLoadingMore, hasMoreChats } = storeToRefs(chatStore);
 const searchQuery = ref("");
+const conversationsRef = ref<HTMLElement | null>(null);
 
 const conversations = computed(() => {
   const chats = chatStore.chats;
@@ -73,6 +80,27 @@ function formatTimestamp(timestamp: string | Date | undefined): string {
   if (!timestamp) return '';
   return moment(timestamp).format('HH:mm - DD/MM');
 }
+
+const handleScroll = async () => {
+  if (!conversationsRef.value || isLoadingMore.value || !hasMoreChats.value) return;
+
+  const { scrollTop, scrollHeight, clientHeight } = conversationsRef.value;
+  if (scrollHeight - scrollTop <= clientHeight + 100) {
+    await chatStore.fetchChats(true);
+  }
+};
+
+onMounted(() => {
+  if (conversationsRef.value) {
+    conversationsRef.value.addEventListener('scroll', handleScroll);
+  }
+});
+
+onUnmounted(() => {
+  if (conversationsRef.value) {
+    conversationsRef.value.removeEventListener('scroll', handleScroll);
+  }
+});
 </script>
 
 <style scoped lang="scss">
@@ -236,6 +264,17 @@ function formatTimestamp(timestamp: string | Date | undefined): string {
   height: 100%;
   color: #667781;
   font-size: 1rem;
+}
+
+.loading-more {
+  padding: 16px;
+  text-align: center;
+  color: #667781;
+  font-size: 0.9rem;
+
+  i {
+    margin-right: 8px;
+  }
 }
 
 @media (max-width: 768px) {
