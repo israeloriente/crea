@@ -187,6 +187,7 @@ function formatTimestamp(timestamp: string | Date | undefined): string {
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
+    text-align: start;
   }
 }
 
@@ -211,6 +212,7 @@ function formatTimestamp(timestamp: string | Date | undefined): string {
     text-overflow: ellipsis;
     flex: 1;
     line-height: 20px;
+    text-align: start;
   }
 }
 
