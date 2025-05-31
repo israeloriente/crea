@@ -5,7 +5,7 @@ import Login from '../views/Login.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
@@ -26,6 +26,11 @@ const router = createRouter({
       name: 'chat',
       component: Chat,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/denuncias',
+      name: 'denuncias',
+      component: () => import('../views/Denuncias.vue')
     }
   ]
 })
@@ -33,7 +38,7 @@ const router = createRouter({
 // Navigation guard
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
-  
+
   // Initialize auth store if not already done
   if (!authStore.user) {
     await authStore.init()
