@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import NavMenu from './components/NavMenu.vue';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from './stores/auth';
+import { computed } from 'vue';
 
 const route = useRoute();
-const showNav = !['/', '/login', '/profissional'].includes(route.path);
+const authStore = useAuthStore();
+
+const showNav = computed(() => {
+  return authStore.user && route.meta.requiresAuth;
+});
 </script>
 
 <template>

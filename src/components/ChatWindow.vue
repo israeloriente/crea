@@ -247,6 +247,18 @@ onMounted(() => {
         }
       }
     }
+
+    .no-messages {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #667781;
+      font-size: 1rem;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
   }
 
   .message-input {

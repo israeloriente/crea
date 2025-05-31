@@ -5,6 +5,10 @@
         <i class="fas fa-comments"></i>
         <span>Chat</span>
       </router-link>
+      <router-link to="/historico" class="nav-item" :class="{ active: $route.path === '/historico' }">
+        <i class="fas fa-history"></i>
+        <span>Histórico</span>
+      </router-link>
       <router-link to="/denuncias" class="nav-item" :class="{ active: $route.path === '/denuncias' }">
         <i class="fas fa-exclamation-circle"></i>
         <span>Denúncias</span>

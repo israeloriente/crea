@@ -14,6 +14,9 @@
       </div>
     </div>
     <div class="conversations">
+      <div v-if="conversations.length === 0" class="no-conversations">
+        Aguardando Novas Mensagens
+      </div>
       <div
         v-for="chat in conversations"
         :key="chat.id"
@@ -40,8 +43,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useChatStore } from "../stores/chat";
-import { useAuthStore } from "../stores/auth";
-import { useRouter } from "vue-router";
 import moment from 'moment';
 
 defineProps<{
@@ -53,8 +54,6 @@ defineEmits<{
 }>();
 
 const chatStore = useChatStore();
-const authStore = useAuthStore();
-const router = useRouter();
 const searchQuery = ref("");
 
 const conversations = computed(() => {
@@ -73,11 +72,6 @@ const conversations = computed(() => {
 function formatTimestamp(timestamp: string | Date | undefined): string {
   if (!timestamp) return '';
   return moment(timestamp).format('HH:mm - DD/MM');
-}
-
-async function handleLogout() {
-  await authStore.logout();
-  router.push("/login");
 }
 </script>
 
@@ -231,6 +225,15 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.no-conversations {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #667781;
+  font-size: 1rem;
 }
 
 @media (max-width: 768px) {
