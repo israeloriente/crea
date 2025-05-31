@@ -3,7 +3,7 @@
     <div class="denuncias-header">
       <h1>Denúncias</h1>
     </div>
-    
+
     <div class="denuncias-container">
       <div class="denuncias-list" v-if="denuncias.length > 0">
         <div
@@ -97,7 +97,7 @@ onMounted(() => {
     padding: 16px;
     background-color: #f0f2f5;
     border-bottom: 1px solid #e9edef;
-    
+
     h1 {
       font-size: 1.2rem;
       color: #111b21;
@@ -180,7 +180,7 @@ onMounted(() => {
     justify-content: center;
     height: 100%;
     color: #667781;
-    
+
     i {
       font-size: 3rem;
       margin-bottom: 16px;

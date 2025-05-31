@@ -37,7 +37,7 @@ body {
 .main-content {
   flex: 1;
   overflow: hidden;
-  
+
   &.with-nav {
     width: calc(100% - 70px);
   }

@@ -3,9 +3,6 @@
     <div class="chat-list-header">
       <div class="header-top">
         <h2>Conversas</h2>
-        <button @click="handleLogout" class="logout-button" title="Sair">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
       </div>
       <div class="search-box">
         <i class="fas fa-search"></i>
@@ -234,29 +231,6 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.logout-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background-color: transparent;
-  color: #54656f;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: #e9edef;
-    color: #dc3545;
-  }
-
-  i {
-    font-size: 1.2rem;
-  }
 }
 
 @media (max-width: 768px) {

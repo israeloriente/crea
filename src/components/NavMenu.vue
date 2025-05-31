@@ -1,15 +1,34 @@
 <template>
   <nav class="nav-menu">
-    <router-link to="/chat" class="nav-item" :class="{ active: $route.path === '/chat' }">
-      <i class="fas fa-comments"></i>
-      <span>Chat</span>
-    </router-link>
-    <router-link to="/denuncias" class="nav-item" :class="{ active: $route.path === '/denuncias' }">
-      <i class="fas fa-exclamation-circle"></i>
-      <span>Denúncias</span>
-    </router-link>
+    <div class="nav-items">
+      <router-link to="/chat" class="nav-item" :class="{ active: $route.path === '/chat' }">
+        <i class="fas fa-comments"></i>
+        <span>Chat</span>
+      </router-link>
+      <router-link to="/denuncias" class="nav-item" :class="{ active: $route.path === '/denuncias' }">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Denúncias</span>
+      </router-link>
+    </div>
+    <button @click="handleLogout" class="nav-item logout-button">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Sair</span>
+    </button>
   </nav>
 </template>
+
+<script setup lang="ts">
+import { useAuthStore } from '../stores/auth';
+import { useRouter } from 'vue-router';
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+async function handleLogout() {
+  await authStore.logout();
+  router.push("/login");
+}
+</script>
 
 <style scoped lang="scss">
 .nav-menu {
@@ -18,8 +37,14 @@
   border-right: 1px solid #e9edef;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   padding: 16px 0;
   height: 100vh;
+
+  .nav-items {
+    display: flex;
+    flex-direction: column;
+  }
 
   .nav-item {
     display: flex;
@@ -30,6 +55,10 @@
     text-decoration: none;
     transition: all 0.3s ease;
     position: relative;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
 
     i {
       font-size: 1.5rem;
@@ -60,6 +89,14 @@
       }
     }
   }
+
+  .logout-button {
+    margin-top: auto;
+
+    &:hover {
+      color: #dc3545;
+    }
+  }
 }
 
 @media (max-width: 768px) {
@@ -75,6 +112,12 @@
     padding: 8px 0;
     box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.1);
 
+    .nav-items {
+      flex-direction: row;
+      flex: 1;
+      justify-content: space-around;
+    }
+
     .nav-item {
       padding: 8px 0;
 
@@ -84,6 +127,10 @@
         top: auto;
         bottom: 0;
       }
+    }
+
+    .logout-button {
+      margin-top: 0;
     }
   }
 }
