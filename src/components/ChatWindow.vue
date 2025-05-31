@@ -84,11 +84,20 @@ onMounted(() => {
 <template>
   <div class="chat-window">
     <div class="chat-header">
-      <div class="avatar">👤</div>
-      <div class="chat-info">
-        <h3>{{ getCurrentChat?.name || "Sem nome" }}</h3>
-        <span class="status">online</span>
+      <div class="chat-header-content">
+        <div class="avatar">👤</div>
+        <div class="chat-info">
+          <h3>{{ getCurrentChat?.name || "Sem nome" }}</h3>
+          <span class="status">online</span>
+        </div>
       </div>
+      <button
+        class="robot-button"
+        @click="handleBotToggle"
+        title="Retomar conversa para o Robô"
+      >
+        <i class="fas fa-robot"></i>
+      </button>
     </div>
 
     <div class="messages" ref="messagesContainer">
@@ -117,13 +126,12 @@ onMounted(() => {
           placeholder="Digite uma mensagem"
           @keyup.enter="sendMessage"
         />
-        <i
-          class="fas fa-robot"
-          @click="handleBotToggle"
-          title="Retomar conversa para o Robô"
-        ></i>
       </div>
-      <button @click="sendMessage" class="send-button">
+      <button
+        @click="sendMessage"
+        class="send-button"
+        :disabled="!newMessage.trim()"
+      >
         <i class="fas fa-paper-plane"></i>
       </button>
     </div>
@@ -136,19 +144,20 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f0f2f5;
+  background: #efeae2;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
 
   .chat-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 10px 16px;
     background: #f0f2f5;
     border-bottom: 1px solid #e9edef;
 
-    h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: #111b21;
+    .chat-header-content {
+      display: flex;
+      align-items: center;
     }
 
     .avatar {
@@ -175,71 +184,67 @@ onMounted(() => {
         color: #667781;
       }
     }
+
+    .robot-button {
+      background: none;
+      border: none;
+      color: #54656f;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #e9edef;
+        color: #00a884;
+      }
+    }
   }
 
   .messages {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-    height: calc(100vh - 120px);
     display: flex;
     flex-direction: column;
 
     .message {
-      padding: 8px 12px;
-      margin: 4px 8px;
-      max-width: 60%;
-      border-radius: 8px;
-      color: #111b21;
+      max-width: 65%;
+      margin: 4px 0;
       display: flex;
 
-      &.received {
-        background: white;
-        margin-right: auto;
-        color: #111b21;
-      }
-
-      &.sent {
-        background: #d9fdd3;
-        margin-left: auto;
-        color: #111b21;
-      }
-
       &-content {
-        max-width: 100%;
         padding: 8px 12px;
         border-radius: 8px;
         position: relative;
         font-size: 0.9rem;
-        float: left;
-        text-align: left;
+        line-height: 1.4;
       }
 
       &-time {
         font-size: 0.7rem;
         color: #667781;
-        position: absolute;
-        right: 8px;
-        bottom: -14px;
+        margin-left: 8px;
+        align-self: flex-end;
       }
-    }
 
-    .me {
-      float: right;
-      color: #111b21;
-      text-align: right;
-      margin-left: auto;
+      &.me {
+        margin-left: auto;
 
-      .message-content {
-        background: #d9fdd3;
-        float: right;
-        text-align: right;
+        .message-content {
+          background: #d9fdd3;
+          color: #111b21;
+        }
       }
-    }
 
-    .them {
-      .message-content {
-        background: white;
+      &.them {
+        margin-right: auto;
+
+        .message-content {
+          background: white;
+          color: #111b21;
+        }
       }
     }
   }
@@ -262,7 +267,7 @@ onMounted(() => {
       i {
         color: #54656f;
         font-size: 1.2rem;
-        margin: 0 8px;
+        margin-right: 8px;
         cursor: pointer;
       }
 
@@ -270,7 +275,7 @@ onMounted(() => {
         flex: 1;
         border: none;
         outline: none;
-        padding: 0 8px;
+        padding: 0;
         font-size: 0.95rem;
         background: transparent;
         color: #111b21;
@@ -282,17 +287,30 @@ onMounted(() => {
     }
 
     .send-button {
-      background: transparent;
+      background: none;
       border: none;
       color: #54656f;
       font-size: 1.2rem;
       cursor: pointer;
       padding: 8px;
+      border-radius: 50%;
+      transition: all 0.2s;
 
-      &:hover {
+      &:hover:not(:disabled) {
         color: #00a884;
       }
+
+      &:disabled {
+        color: #b3b3b3;
+        cursor: not-allowed;
+      }
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-window {
+    height: calc(100vh - 60px); // Account for bottom navigation
   }
 }
 </style>

@@ -1,26 +1,35 @@
 <template>
   <div class="denuncias">
-    <h1>Denúncias</h1>
-    <div class="denuncias-list">
-      <div
-        v-for="(denuncia, index) in denuncias"
-        :key="index"
-        class="denuncia-item"
-      >
-        <div class="denuncia-header">
-          <h3>{{ denuncia.title }}</h3>
-          <span class="denuncia-data">{{ formatDate(denuncia.created_at) }}</span>
-        </div>
-        <p class="denuncia-resumo">{{ getContentPreview(denuncia.content) }}</p>
-        <div class="denuncia-detalhes" v-if="denuncia.mostrarMais">
-          <p>{{ denuncia.content }}</p>
-        </div>
-        <button
-          class="ver-mais-btn"
-          @click="toggleMostrarMais(index)"
+    <div class="denuncias-header">
+      <h1>Denúncias</h1>
+    </div>
+    
+    <div class="denuncias-container">
+      <div class="denuncias-list" v-if="denuncias.length > 0">
+        <div
+          v-for="(denuncia, index) in denuncias"
+          :key="index"
+          class="denuncia-item"
         >
-          {{ denuncia.mostrarMais ? 'Ver menos' : 'Ver mais' }}
-        </button>
+          <div class="denuncia-header">
+            <h3>{{ denuncia.title }}</h3>
+            <span class="denuncia-data">{{ formatDate(denuncia.created_at) }}</span>
+          </div>
+          <p class="denuncia-resumo">{{ getContentPreview(denuncia.content) }}</p>
+          <div class="denuncia-detalhes" v-if="denuncia.mostrarMais">
+            <p>{{ denuncia.content }}</p>
+          </div>
+          <button
+            class="ver-mais-btn"
+            @click="toggleMostrarMais(index)"
+          >
+            {{ denuncia.mostrarMais ? 'Ver menos' : 'Ver mais' }}
+          </button>
+        </div>
+      </div>
+      <div v-else class="no-denuncias">
+        <i class="fas fa-exclamation-circle"></i>
+        <p>Nenhuma denúncia disponível</p>
       </div>
     </div>
   </div>
@@ -77,65 +86,122 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .denuncias {
-  padding: 2rem;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.denuncias-list {
-  margin-top: 2rem;
-}
-
-.denuncia-item {
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.denuncia-header {
+  height: 100vh;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  background-color: #f0f2f5;
+
+  .denuncias-header {
+    padding: 16px;
+    background-color: #f0f2f5;
+    border-bottom: 1px solid #e9edef;
+    
+    h1 {
+      font-size: 1.2rem;
+      color: #111b21;
+      margin: 0;
+    }
+  }
+
+  .denuncias-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .denuncias-list {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .denuncia-item {
+    background-color: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .denuncia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    h3 {
+      margin: 0;
+      color: #111b21;
+      font-size: 1rem;
+    }
+  }
+
+  .denuncia-data {
+    color: #667781;
+    font-size: 0.8rem;
+  }
+
+  .denuncia-resumo {
+    margin-bottom: 12px;
+    color: #111b21;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .denuncia-detalhes {
+    padding: 12px;
+    background-color: #f0f2f5;
+    border-radius: 6px;
+    margin: 12px 0;
+    font-size: 0.9rem;
+    color: #111b21;
+  }
+
+  .ver-mais-btn {
+    background-color: #00a884;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: darken(#00a884, 5%);
+    }
+  }
+
+  .no-denuncias {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #667781;
+    
+    i {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: 1.1rem;
+    }
+  }
 }
 
-.denuncia-header h3 {
-  margin: 0;
-  color: #2c3e50;
-}
+@media (max-width: 768px) {
+  .denuncias {
+    .denuncias-container {
+      padding: 12px;
+    }
 
-.denuncia-data {
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.denuncia-resumo {
-  margin-bottom: 1rem;
-  color: #495057;
-}
-
-.denuncia-detalhes {
-  padding: 1rem;
-  background-color: #fff;
-  border-radius: 4px;
-  margin: 1rem 0;
-}
-
-.ver-mais-btn {
-  background-color: #646cff;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.ver-mais-btn:hover {
-  background-color: #535bf2;
+    .denuncia-item {
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+  }
 }
 </style>

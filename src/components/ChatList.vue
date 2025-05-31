@@ -3,9 +3,8 @@
     <div class="chat-list-header">
       <div class="header-top">
         <h2>Conversas</h2>
-        <button @click="handleLogout" class="logout-button">
+        <button @click="handleLogout" class="logout-button" title="Sair">
           <i class="fas fa-sign-out-alt"></i>
-          Sair
         </button>
       </div>
       <div class="search-box">
@@ -61,7 +60,6 @@ const authStore = useAuthStore();
 const router = useRouter();
 const searchQuery = ref("");
 
-// Mock data for conversations with last messages from the store and search filter
 const conversations = computed(() => {
   const chats = chatStore.chats;
 
@@ -93,7 +91,7 @@ async function handleLogout() {
   background: white;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
 
   &-header {
     padding: 16px;
@@ -108,7 +106,7 @@ async function handleLogout() {
       h2 {
         margin: 0;
         font-size: 1.2rem;
-        color: #41525d;
+        color: #111b21;
       }
     }
   }
@@ -126,6 +124,10 @@ async function handleLogout() {
     background: white;
     font-size: 0.9rem;
     color: #111b21;
+
+    &::placeholder {
+      color: #54656f;
+    }
   }
 
   i {
@@ -140,7 +142,6 @@ async function handleLogout() {
 .conversations {
   flex: 1;
   overflow-y: auto;
-  height: calc(100vh - 116px);
   background: white;
 }
 
@@ -150,8 +151,7 @@ async function handleLogout() {
   cursor: pointer;
   border-bottom: 1px solid #e9edef;
   min-height: 72px;
-  max-height: 72px;
-  overflow: hidden;
+  transition: background-color 0.2s;
 
   &:hover {
     background: #f5f6f6;
@@ -172,11 +172,12 @@ async function handleLogout() {
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
+  flex-shrink: 0;
 }
 
 .chat-info {
   flex: 1;
-  min-width: 0; // Importante para que o texto não force a expansão
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -208,18 +209,17 @@ async function handleLogout() {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  float: left;
   gap: 8px;
 
   p {
     margin: 0;
     font-size: 0.9rem;
-    color: #111b21;
+    color: #667781;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
-    line-height: 20px; // Para garantir altura consistente
+    line-height: 20px;
   }
 }
 
@@ -239,22 +239,35 @@ async function handleLogout() {
 .logout-button {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: 4px;
-  background-color: #dc3545;
-  color: white;
+  border-radius: 50%;
+  background-color: transparent;
+  color: #54656f;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 
   &:hover {
-    background-color: #c82333;
+    background-color: #e9edef;
+    color: #dc3545;
   }
 
   i {
-    font-size: 1rem;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-list {
+    width: 100%;
+    height: auto;
+    max-height: calc(100vh - 60px);
+  }
+
+  .conversations {
+    max-height: calc(100vh - 140px);
   }
 }
 </style>

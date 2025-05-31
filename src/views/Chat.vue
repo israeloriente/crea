@@ -3,6 +3,7 @@
     <ChatList @select-chat="handleChatSelect" :selectedChatId="selectedChat" />
     <ChatWindow v-if="selectedChat" :chatId="selectedChat" />
     <div v-else class="no-chat-selected">
+      <i class="fas fa-comments"></i>
       <p>Selecione uma conversa para começar</p>
     </div>
   </div>
@@ -31,9 +32,6 @@ watch(currentChatId, (newChatId) => {
 });
 
 onMounted(async () => {
-  console.log('Configurando canal Supabase...');
-
-  // Carregar chats iniciais
   await chatStore.fetchChats();
 
   const channel = supabase
@@ -45,27 +43,22 @@ onMounted(async () => {
         schema: 'public',
         table: 'human_chats',
       },
-      (payload) => {
-        console.log('Payload recebido:', payload);
-        console.log('Mudança detectada em human_chats:', payload);
+      () => {
         chatStore.fetchChats();
       }
     )
-    .subscribe((status) => {
-      console.log('Status da inscrição:', status);
-    });
+    .subscribe();
 
   onUnmounted(() => {
-    console.log('Removendo canal...');
     supabase.removeChannel(channel);
   });
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .chat-container {
   display: flex;
-  height: 100%;
+  height: 100vh;
   width: 100%;
   overflow: hidden;
   background-color: #f0f2f5;
@@ -74,10 +67,25 @@ onMounted(async () => {
 .no-chat-selected {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #f8f9fa;
-  color: #54656f;
-  font-size: 1.1rem;
+  color: #667781;
+
+  i {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    color: #00a884;
+  }
+
+  p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-container {
+    flex-direction: column;
+  }
 }
 </style>
