@@ -5,6 +5,10 @@
         <i class="fas fa-comments"></i>
         <span>Chat</span>
       </router-link>
+      <router-link to="/analytics" class="nav-item" :class="{ active: $route.path === '/analytics' }">
+        <i class="fas fa-chart-line"></i>
+        <span>Analytics</span>
+      </router-link>
       <router-link to="/historico" class="nav-item" :class="{ active: $route.path === '/historico' }">
         <i class="fas fa-history"></i>
         <span>Histórico</span>

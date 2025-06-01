@@ -159,8 +159,8 @@ export const useChatStore = defineStore('chat', {
 
         const newMessages = data.reduce<Message[]>((acc, msg) => {
           try {
-            const parsedMessage = typeof msg.message === 'string' 
-              ? JSON.parse(msg.message) 
+            const parsedMessage = typeof msg.message === 'string'
+              ? JSON.parse(msg.message)
               : msg.message;
 
             if (!isValidMessageContent(parsedMessage)) {
@@ -217,7 +217,7 @@ export const useChatStore = defineStore('chat', {
 
       try {
         const now = new Date().toISOString();
-        
+
         // Send message to webhook with timeout
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
