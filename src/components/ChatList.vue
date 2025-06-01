@@ -27,7 +27,7 @@
         <div class="avatar">{{ chat.avatar || '👤' }}</div>
         <div class="chat-info">
           <div class="chat-header">
-            <h3>{{ chat.name }}</h3>
+            <h3>{{ chat.phone }}</h3>
             <span class="timestamp">{{ formatTimestamp(chat.timestamp || chat.created_at) }}</span>
           </div>
           <div class="last-message">
@@ -72,7 +72,7 @@ const conversations = computed(() => {
 
   const query = searchQuery.value.toLowerCase();
   return chats.filter(chat =>
-    chat.name.toLowerCase().includes(query)
+    chat.phone.toLowerCase().includes(query)
   );
 });
 

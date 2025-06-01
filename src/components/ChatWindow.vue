@@ -88,7 +88,7 @@ onMounted(() => {
       <div class="chat-header-content">
         <div class="avatar">👤</div>
         <div class="chat-info">
-          <h3>{{ getCurrentChat?.name || "Sem nome" }}</h3>
+          <h3>{{ getCurrentChat?.phone || "Sem número" }}</h3>
           <span class="status">online</span>
         </div>
       </div>
