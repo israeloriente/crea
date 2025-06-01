@@ -9,7 +9,7 @@
         <table>
           <thead>
             <tr>
-              <th>Nome</th>
+              <th>ID</th>
               <th>Telefone</th>
               <th>Avaliação</th>
               <th>Data</th>
@@ -17,7 +17,7 @@
           </thead>
           <tbody>
             <tr v-for="(atendimento, index) in atendimentos" :key="index">
-              <td>{{ atendimento.name }}</td>
+              <td>{{ atendimento.id }}</td>
               <td>{{ atendimento.phone }}</td>
               <td>
                 <div class="rating">
@@ -45,7 +45,7 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
 
 interface Atendimento {
-  name: string
+  id: string
   phone: string
   rate: number
   created_at: string
@@ -58,7 +58,7 @@ const fetchAtendimentos = async () => {
   try {
     const { data, error } = await supabase
       .from('human_chats')
-      .select('name, phone, rate, created_at')
+      .select('id, phone, rate, created_at')
       .eq('status', 'closed')
       .eq('user', authStore.user?.id)
       .order('created_at', { ascending: false })
