@@ -1,25 +1,20 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import Profissional from '../views/Profissional.vue'
 import Chat from '../views/Chat.vue'
 import Login from '../views/Login.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      redirect: '/profissional'
+      redirect: '/login'
     },
     {
       path: '/login',
       name: 'login',
       component: Login
-    },
-    {
-      path: '/profissional',
-      name: 'profissional',
-      component: Profissional
     },
     {
       path: '/chat',
