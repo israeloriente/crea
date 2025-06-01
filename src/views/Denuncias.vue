@@ -103,6 +103,8 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+@use "sass:color";
+
 .denuncias {
   height: 100vh;
   display: flex;
@@ -176,7 +178,7 @@ onMounted(() => {
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: darken(#00a884, 5%);
+      background-color: color.adjust(#00a884, $lightness: -5%);
     }
   }
 
